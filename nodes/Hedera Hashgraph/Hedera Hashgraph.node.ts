@@ -51,8 +51,24 @@ export class HederaHashgraph implements INodeType {
         noDataExpression: true,
         options: [
           {
+            name: 'Account',
+            value: 'account',
+          },
+          {
             name: 'Accounts',
             value: 'accounts',
+          },
+          {
+            name: 'Transaction',
+            value: 'transaction',
+          },
+          {
+            name: 'Transactions',
+            value: 'transactions',
+          },
+          {
+            name: 'Token',
+            value: 'token',
           },
           {
             name: 'Tokens',
@@ -67,17 +83,39 @@ export class HederaHashgraph implements INodeType {
             value: 'topics',
           },
           {
-            name: 'Transactions',
-            value: 'transactions',
+            name: 'TopicMessage',
+            value: 'topicMessage',
+          },
+          {
+            name: 'Schedule',
+            value: 'schedule',
           },
           {
             name: 'Schedules',
             value: 'schedules',
+          },
+          {
+            name: 'Contract',
+            value: 'contract',
           }
         ],
-        default: 'accounts',
+        default: 'account',
       },
       // Operation dropdowns per resource
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: { show: { resource: ['account'] } },
+  options: [
+    { name: 'Get All Accounts', value: 'getAllAccounts', description: 'Get list of accounts on network', action: 'Get all accounts' },
+    { name: 'Get Account', value: 'getAccount', description: 'Get specific account information', action: 'Get an account' },
+    { name: 'Get Account Transactions', value: 'getAccountTransactions', description: 'Get transactions for account', action: 'Get account transactions' },
+    { name: 'Get Account Tokens', value: 'getAccountTokens', description: 'Get token balances for account', action: 'Get account tokens' }
+  ],
+  default: 'getAllAccounts',
+},
 {
   displayName: 'Operation',
   name: 'operation',
@@ -121,6 +159,77 @@ export class HederaHashgraph implements INodeType {
     },
   ],
   default: 'getAccounts',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: { show: { resource: ['transaction'] } },
+  options: [
+    { name: 'Get All Transactions', value: 'getAllTransactions', description: 'Get list of transactions', action: 'Get all transactions' },
+    { name: 'Get Transaction', value: 'getTransaction', description: 'Get specific transaction details', action: 'Get a transaction' },
+    { name: 'Submit Transaction', value: 'submitTransaction', description: 'Submit signed transaction to network', action: 'Submit a transaction' }
+  ],
+  default: 'getAllTransactions',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: {
+    show: {
+      resource: ['transactions'],
+    },
+  },
+  options: [
+    {
+      name: 'Get Transactions',
+      value: 'getTransactions',
+      description: 'Get a list of transactions',
+      action: 'Get transactions',
+    },
+    {
+      name: 'Get Transaction',
+      value: 'getTransaction',
+      description: 'Get specific transaction details',
+      action: 'Get transaction details',
+    },
+    {
+      name: 'Get Transaction State Proof',
+      value: 'getTransactionStateProof',
+      description: 'Get transaction state proof',
+      action: 'Get transaction state proof',
+    },
+    {
+      name: 'Submit Transaction',
+      value: 'submitTransaction',
+      description: 'Submit a signed transaction to the network',
+      action: 'Submit transaction',
+    },
+    {
+      name: 'Get Account Transactions',
+      value: 'getAccountTransactions',
+      description: 'Get transactions for a specific account',
+      action: 'Get account transactions',
+    },
+  ],
+  default: 'getTransactions',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: { show: { resource: ['token'] } },
+  options: [
+    { name: 'Get All Tokens', value: 'getAllTokens', description: 'Get list of tokens on network', action: 'Get all tokens' },
+    { name: 'Get Token', value: 'getToken', description: 'Get specific token information', action: 'Get token' },
+    { name: 'Get Token Balances', value: 'getTokenBalances', description: 'Get token holder balances', action: 'Get token balances' },
+    { name: 'Get Token NFTs', value: 'getTokenNfts', description: 'Get NFTs for token', action: 'Get token NFTs' }
+  ],
+  default: 'getAllTokens',
 },
 {
   displayName: 'Operation',
@@ -307,44 +416,39 @@ export class HederaHashgraph implements INodeType {
   name: 'operation',
   type: 'options',
   noDataExpression: true,
+  displayOptions: { show: { resource: ['topicMessage'] } },
+  options: [
+    { name: 'Get Topic Messages', value: 'getTopicMessages', description: 'Get messages from a consensus topic', action: 'Get topic messages' },
+    { name: 'Get Topic Message', value: 'getTopicMessage', description: 'Get a specific topic message by sequence number', action: 'Get topic message' },
+    { name: 'Submit Topic Message', value: 'submitTopicMessage', description: 'Submit a message to a consensus topic', action: 'Submit topic message' }
+  ],
+  default: 'getTopicMessages',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
   displayOptions: {
     show: {
-      resource: ['transactions'],
+      resource: ['schedule'],
     },
   },
   options: [
     {
-      name: 'Get Transactions',
-      value: 'getTransactions',
-      description: 'Get a list of transactions',
-      action: 'Get transactions',
+      name: 'Get All Schedules',
+      value: 'getAllSchedules',
+      description: 'Get list of scheduled transactions',
+      action: 'Get all schedules',
     },
     {
-      name: 'Get Transaction',
-      value: 'getTransaction',
-      description: 'Get specific transaction details',
-      action: 'Get transaction details',
-    },
-    {
-      name: 'Get Transaction State Proof',
-      value: 'getTransactionStateProof',
-      description: 'Get transaction state proof',
-      action: 'Get transaction state proof',
-    },
-    {
-      name: 'Submit Transaction',
-      value: 'submitTransaction',
-      description: 'Submit a signed transaction to the network',
-      action: 'Submit transaction',
-    },
-    {
-      name: 'Get Account Transactions',
-      value: 'getAccountTransactions',
-      description: 'Get transactions for a specific account',
-      action: 'Get account transactions',
+      name: 'Get Schedule',
+      value: 'getSchedule',
+      description: 'Get specific scheduled transaction',
+      action: 'Get a schedule',
     },
   ],
-  default: 'getTransactions',
+  default: 'getAllSchedules',
 },
 {
   displayName: 'Operation',
@@ -390,7 +494,531 @@ export class HederaHashgraph implements INodeType {
   ],
   default: 'getSchedules',
 },
-      // Parameter definitions
+{
+	displayName: 'Operation',
+	name: 'operation',
+	type: 'options',
+	noDataExpression: true,
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+		},
+	},
+	options: [
+		{
+			name: 'Get All Contracts',
+			value: 'getAllContracts',
+			description: 'Get list of smart contracts',
+			action: 'Get all contracts',
+		},
+		{
+			name: 'Get Contract',
+			value: 'getContract',
+			description: 'Get specific contract information',
+			action: 'Get a contract',
+		},
+		{
+			name: 'Get Contract Results',
+			value: 'getContractResults',
+			description: 'Get contract execution results',
+			action: 'Get contract results',
+		},
+		{
+			name: 'Get Contract Result',
+			value: 'getContractResult',
+			description: 'Get specific contract result',
+			action: 'Get a contract result',
+		},
+	],
+	default: 'getAllContracts',
+},
+// New API parameters
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  displayOptions: { show: { resource: ['account'], operation: ['getAllAccounts'] } },
+  default: 25,
+  description: 'Maximum number of accounts to return',
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  displayOptions: { show: { resource: ['account'], operation: ['getAllAccounts'] } },
+  options: [
+    { name: 'Ascending', value: 'asc' },
+    { name: 'Descending', value: 'desc' }
+  ],
+  default: 'desc',
+  description: 'Sort order for results',
+},
+{
+  displayName: 'Account ID Filter',
+  name: 'accountIdFilter',
+  type: 'string',
+  displayOptions: { show: { resource: ['account'], operation: ['getAllAccounts'] } },
+  default: '',
+  description: 'Filter accounts by ID (format: 0.0.123)',
+  placeholder: '0.0.123',
+},
+{
+  displayName: 'Account ID',
+  name: 'accountId',
+  type: 'string',
+  displayOptions: { show: { resource: ['account'], operation: ['getAccount', 'getAccountTransactions', 'getAccountTokens'] } },
+  required: true,
+  default: '',
+  description: 'The account identifier (format: 0.0.123)',
+  placeholder: '0.0.123',
+},
+{
+  displayName: 'Timestamp',
+  name: 'timestamp',
+  type: 'string',
+  displayOptions: { show: { resource: ['account'], operation: ['getAccount', 'getAccountTransactions'] } },
+  default: '',
+  description: 'The timestamp for which to return data (format: seconds.nanoseconds)',
+  placeholder: '1234567890.123456789',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  displayOptions: { show: { resource: ['account'], operation: ['getAccountTransactions', 'getAccountTokens'] } },
+  default: 25,
+  description: 'Maximum number of items to return',
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  displayOptions: { show: { resource: ['account'], operation: ['getAccountTransactions', 'getAccountTokens'] } },
+  options: [
+    { name: 'Ascending', value: 'asc' },
+    { name: 'Descending', value: 'desc' }
+  ],
+  default: 'desc',
+  description: 'Sort order for results',
+},
+{
+  displayName: 'Transaction ID',
+  name: 'transactionId',
+  type: 'string',
+  required: true,
+  displayOptions: { show: { resource: ['transaction'], operation: ['getTransaction'] } },
+  default: '',
+  description: 'The ID of the transaction to retrieve',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  displayOptions: { show: { resource: ['transaction'], operation: ['getAllTransactions'] } },
+  default: 25,
+  description: 'The maximum number of transactions to return',
+  typeOptions: { minValue: 1, maxValue: 100 },
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  displayOptions: { show: { resource: ['transaction'], operation: ['getAllTransactions'] } },
+  options: [
+    { name: 'ASC', value: 'asc' },
+    { name: 'DESC', value: 'desc' }
+  ],
+  default: 'desc',
+  description: 'The order of transactions by timestamp',
+},
+{
+  displayName: 'Timestamp',
+  name: 'timestamp',
+  type: 'string',
+  displayOptions: { show: { resource: ['transaction'], operation: ['getAllTransactions'] } },
+  default: '',
+  description: 'The consensus timestamp in seconds.nanoseconds format',
+},
+{
+  displayName: 'Account ID',
+  name: 'accountId',
+  type: 'string',
+  displayOptions: { show: { resource: ['transaction'], operation: ['getAllTransactions'] } },
+  default: '',
+  description: 'Filter transactions by account ID (format: shard.realm.account)',
+},
+{
+  displayName: 'Signed Transaction',
+  name: 'signedTransaction',
+  type: 'json',
+  required: true,
+  displayOptions: { show: { resource: ['transaction'], operation: ['submitTransaction'] } },
+  default: '',
+  description: 'The signed transaction in protobuf format (base64 encoded)',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  default: 25,
+  description: 'Maximum number of tokens to return',
+  displayOptions: { show: { resource: ['token'], operation: ['getAllTokens'] } },
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  options: [
+    { name: 'Ascending', value: 'asc' },
+    { name: 'Descending', value: 'desc' }
+  ],
+  default: 'asc',
+  description: 'Sort order for results',
+  displayOptions: { show: { resource: ['token'], operation: ['getAllTokens'] } },
+},
+{
+  displayName: 'Token ID',
+  name: 'tokenIdFilter',
+  type: 'string',
+  default: '',
+  description: 'Filter by token ID',
+  displayOptions: { show: { resource: ['token'], operation: ['getAllTokens'] } },
+},
+{
+  displayName: 'Token ID',
+  name: 'tokenId',
+  type: 'string',
+  required: true,
+  default: '',
+  description: 'The ID of the token to retrieve',
+  displayOptions: { show: { resource: ['token'], operation: ['getToken'] } },
+},
+{
+  displayName: 'Timestamp',
+  name: 'timestamp',
+  type: 'string',
+  default: '',
+  description: 'Timestamp to query token state at specific time',
+  displayOptions: { show: { resource: ['token'], operation: ['getToken'] } },
+},
+{
+  displayName: 'Token ID',
+  name: 'tokenId',
+  type: 'string',
+  required: true,
+  default: '',
+  description: 'The ID of the token to get balances for',
+  displayOptions: { show: { resource: ['token'], operation: ['getTokenBalances'] } },
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  default: 25,
+  description: 'Maximum number of balance records to return',
+  displayOptions: { show: { resource: ['token'], operation: ['getTokenBalances'] } },
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  options: [
+    { name: 'Ascending', value: 'asc' },
+    { name: 'Descending', value: 'desc' }
+  ],
+  default: 'asc',
+  description: 'Sort order for balance results',
+  displayOptions: { show: { resource: ['token'], operation: ['getTokenBalances'] } },
+},
+{
+  displayName: 'Token ID',
+  name: 'tokenId',
+  type: 'string',
+  required: true,
+  default: '',
+  description: 'The ID of the token to get NFTs for',
+  displayOptions: { show: { resource: ['token'], operation: ['getTokenNfts'] } },
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  default: 25,
+  description: 'Maximum number of NFTs to return',
+  displayOptions: { show: { resource: ['token'], operation: ['getTokenNfts'] } },
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  options: [
+    { name: 'Ascending', value: 'asc' },
+    { name: 'Descending', value: 'desc' }
+  ],
+  default: 'asc',
+  description: 'Sort order for NFT results',
+  displayOptions: { show: { resource: ['token'], operation: ['getTokenNfts'] } },
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  displayOptions: {
+    show: {
+      resource: ['schedule'],
+      operation: ['getAllSchedules'],
+    },
+  },
+  default: 25,
+  description: 'The maximum number of schedules to return',
+  typeOptions: {
+    minValue: 1,
+    maxValue: 100,
+  },
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  displayOptions: {
+    show: {
+      resource: ['schedule'],
+      operation: ['getAllSchedules'],
+    },
+  },
+  options: [
+    {
+      name: 'ASC',
+      value: 'asc',
+    },
+    {
+      name: 'DESC',
+      value: 'desc',
+    },
+  ],
+  default: 'desc',
+  description: 'The order to return results',
+},
+{
+  displayName: 'Schedule ID',
+  name: 'scheduleIdFilter',
+  type: 'string',
+  displayOptions: {
+    show: {
+      resource: ['schedule'],
+      operation: ['getAllSchedules'],
+    },
+  },
+  default: '',
+  description: 'Filter by specific schedule ID',
+},
+{
+  displayName: 'Schedule ID',
+  name: 'scheduleId',
+  type: 'string',
+  displayOptions: {
+    show: {
+      resource: ['schedule'],
+      operation: ['getSchedule'],
+    },
+  },
+  default: '',
+  required: true,
+  description: 'The ID of the scheduled transaction to retrieve',
+},
+{
+  displayName: 'Topic ID',
+  name: 'topicId',
+  type: 'string',
+  required: true,
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['getTopicMessages', 'getTopicMessage', 'submitTopicMessage'] 
+    } 
+  },
+  default: '',
+  description: 'The topic ID (e.g., 0.0.123456)',
+},
+{
+  displayName: 'Message',
+  name: 'message',
+  type: 'string',
+  required: true,
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['submitTopicMessage'] 
+    } 
+  },
+  default: '',
+  description: 'The message content to submit to the topic',
+},
+{
+  displayName: 'Sequence Number',
+  name: 'sequenceNumber',
+  type: 'number',
+  required: true,
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['getTopicMessage'] 
+    } 
+  },
+  default: 1,
+  description: 'The sequence number of the specific message to retrieve',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['getTopicMessages'] 
+    } 
+  },
+  default: 25,
+  description: 'The maximum number of messages to return (default: 25)',
+},
+{
+  displayName: 'Order',
+  name: 'order',
+  type: 'options',
+  options: [
+    { name: 'Ascending', value: 'asc' },
+    { name: 'Descending', value: 'desc' }
+  ],
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['getTopicMessages'] 
+    } 
+  },
+  default: 'desc',
+  description: 'The order of returned messages',
+},
+{
+  displayName: 'Timestamp',
+  name: 'timestamp',
+  type: 'string',
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['getTopicMessages'] 
+    } 
+  },
+  default: '',
+  description: 'Filter messages by timestamp (e.g., gte:1234567890.123456789)',
+},
+{
+  displayName: 'Sequence Number Filter',
+  name: 'sequenceNumberFilter',
+  type: 'string',
+  displayOptions: { 
+    show: { 
+      resource: ['topicMessage'], 
+      operation: ['getTopicMessages'] 
+    } 
+  },
+  default: '',
+  description: 'Filter messages by sequence number (e.g., gte:100)',
+},
+{
+	displayName: 'Contract ID',
+	name: 'contractId',
+	type: 'string',
+	required: true,
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+			operation: ['getContract'],
+		},
+	},
+	default: '',
+	description: 'The ID of the contract to retrieve',
+},
+{
+	displayName: 'Transaction ID',
+	name: 'transactionId',
+	type: 'string',
+	required: true,
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+			operation: ['getContractResult'],
+		},
+	},
+	default: '',
+	description: 'The transaction ID of the contract result to retrieve',
+},
+{
+	displayName: 'Limit',
+	name: 'limit',
+	type: 'number',
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+			operation: ['getAllContracts', 'getContractResults'],
+		},
+	},
+	default: 25,
+	description: 'Maximum number of contracts to return',
+	typeOptions: {
+		minValue: 1,
+		maxValue: 100,
+	},
+},
+{
+	displayName: 'Order',
+	name: 'order',
+	type: 'options',
+	options: [
+		{
+			name: 'Ascending',
+			value: 'asc',
+		},
+		{
+			name: 'Descending',
+			value: 'desc',
+		},
+	],
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+			operation: ['getAllContracts', 'getContractResults'],
+		},
+	},
+	default: 'desc',
+	description: 'The order to sort results',
+},
+{
+	displayName: 'Contract Filter ID',
+	name: 'contractFilterId',
+	type: 'string',
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+			operation: ['getAllContracts'],
+		},
+	},
+	default: '',
+	description: 'Filter contracts by contract ID',
+},
+{
+	displayName: 'Timestamp',
+	name: 'timestamp',
+	type: 'string',
+	displayOptions: {
+		show: {
+			resource: ['contract'],
+			operation: ['getContractResults'],
+		},
+	},
+	default: '',
+	description: 'Filter results by timestamp (format: seconds.nanoseconds)',
+},
+      // Preserve existing parameters
 {
   displayName: 'Limit',
   name: 'limit',
@@ -1286,18 +1914,30 @@ export class HederaHashgraph implements INodeType {
     const resource = this.getNodeParameter('resource', 0) as string;
 
     switch (resource) {
+      case 'account':
+        return [await executeAccountOperations.call(this, items)];
       case 'accounts':
         return [await executeAccountsOperations.call(this, items)];
+      case 'transaction':
+        return [await executeTransactionOperations.call(this, items)];
+      case 'transactions':
+        return [await executeTransactionsOperations.call(this, items)];
+      case 'token':
+        return [await executeTokenOperations.call(this, items)];
       case 'tokens':
         return [await executeTokensOperations.call(this, items)];
       case 'nfts':
         return [await executeNftsOperations.call(this, items)];
       case 'topics':
         return [await executeTopicsOperations.call(this, items)];
-      case 'transactions':
-        return [await executeTransactionsOperations.call(this, items)];
+      case 'topicMessage':
+        return [await executeTopicMessageOperations.call(this, items)];
+      case 'schedule':
+        return [await executeScheduleOperations.call(this, items)];
       case 'schedules':
         return [await executeSchedulesOperations.call(this, items)];
+      case 'contract':
+        return [await executeContractOperations.call(this, items)];
       default:
         throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not supported`);
     }
@@ -1305,10 +1945,10 @@ export class HederaHashgraph implements INodeType {
 }
 
 // ============================================================
-// Resource Handler Functions
+// Resource Handler Functions (New API)
 // ============================================================
 
-async function executeAccountsOperations(
+async function executeAccountOperations(
   this: IExecuteFunctions,
   items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
@@ -1316,16 +1956,15 @@ async function executeAccountsOperations(
   const operation = this.getNodeParameter('operation', 0) as string;
   const credentials = await this.getCredentials('hederahashgraphApi') as any;
 
-  const baseUrl = credentials.baseUrl || 'https://mainnet-public.mirrornode.hedera.com/api/v1';
-
   for (let i = 0; i < items.length; i++) {
     try {
       let result: any;
+      const baseUrl = credentials.baseUrl || 'https://mainnet-public.mirrornode.hedera.com/api/v1';
 
       switch (operation) {
-        case 'getAccounts': {
+        case 'getAllAccounts': {
           const limit = this.getNodeParameter('limit', i, 25) as number;
-          const order = this.getNodeParameter('order', i, 'asc') as string;
+          const order = this.getNodeParameter('order', i, 'desc') as string;
           const accountIdFilter = this.getNodeParameter('accountIdFilter', i, '') as string;
 
           let url = `${baseUrl}/accounts?limit=${limit}&order=${order}`;
@@ -1352,10 +1991,16 @@ async function executeAccountsOperations(
 
         case 'getAccount': {
           const accountId = this.getNodeParameter('accountId', i) as string;
+          const timestamp = this.getNodeParameter('timestamp', i, '') as string;
+
+          let url = `${baseUrl}/accounts/${accountId}`;
+          if (timestamp) {
+            url += `?timestamp=${timestamp}`;
+          }
 
           const options: any = {
             method: 'GET',
-            url: `${baseUrl}/accounts/${accountId}`,
+            url: url,
             headers: {
               'Content-Type': 'application/json',
             },
@@ -1398,14 +2043,12 @@ async function executeAccountsOperations(
           break;
         }
 
-        case 'getAccountBalances': {
+        case 'getAccountTokens': {
           const accountId = this.getNodeParameter('accountId', i) as string;
-          const timestamp = this.getNodeParameter('timestamp', i, '') as string;
+          const limit = this.getNodeParameter('limit', i, 25) as number;
+          const order = this.getNodeParameter('order', i, 'desc') as string;
 
-          let url = `${baseUrl}/accounts/${accountId}/balances`;
-          if (timestamp) {
-            url += `?timestamp=${timestamp}`;
-          }
+          const url = `${baseUrl}/accounts/${accountId}/tokens?limit=${limit}&order=${order}`;
 
           const options: any = {
             method: 'GET',
@@ -1424,316 +2067,6 @@ async function executeAccountsOperations(
           break;
         }
 
-        case 'submitTransaction': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as any;
-
-          let transactionBytes: string;
-          if (typeof signedTransaction === 'string') {
-            transactionBytes = signedTransaction;
-          } else if (typeof signedTransaction === 'object' && signedTransaction.bytes) {
-            transactionBytes = signedTransaction.bytes;
-          } else {
-            throw new NodeOperationError(
-              this.getNode(),
-              'Invalid signed transaction format. Expected base64 encoded transaction bytes.',
-              { itemIndex: i }
-            );
-          }
-
-          const options: any = {
-            method: 'POST',
-            url: `${baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              signedTransactionBytes: transactionBytes,
-            }),
-            json: true,
-          };
-
-          if (credentials.apiKey) {
-            options.headers.Authorization = `Bearer ${credentials.apiKey}`;
-          }
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(
-            this.getNode(),
-            `Unknown operation: ${operation}`,
-            { itemIndex: i }
-          );
-      }
-
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        const errorMessage = error.cause?.body?.message || error.message || 'Unknown error occurred';
-        returnData.push({
-          json: { 
-            error: errorMessage,
-            statusCode: error.cause?.httpCode || error.statusCode,
-            operation: operation 
-          },
-          pairedItem: { item: i },
-        });
-      } else {
-        if (error.cause?.body?.message) {
-          throw new NodeApiError(this.getNode(), error.cause.body, { 
-            message: error.cause.body.message,
-            httpCode: error.cause.httpCode?.toString() || '400',
-            itemIndex: i 
-          });
-        }
-        throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeTokensOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('hederahashgraphApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getTokens': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const order = this.getNodeParameter('order', i) as string;
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const type = this.getNodeParameter('type', i) as string;
-
-          const params = new URLSearchParams();
-          if (limit) params.append('limit', limit.toString());
-          if (order) params.append('order', order);
-          if (tokenId) params.append('token.id', tokenId);
-          if (type !== 'all') params.append('type', type);
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/tokens?${params.toString()}`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getToken': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          if (!tokenId) {
-            throw new NodeOperationError(this.getNode(), 'Token ID is required');
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/tokens/${tokenId}`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTokenBalances': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          if (!tokenId) {
-            throw new NodeOperationError(this.getNode(), 'Token ID is required');
-          }
-
-          const accountId = this.getNodeParameter('accountId', i) as string;
-          const limit = this.getNodeParameter('limit', i) as number;
-
-          const params = new URLSearchParams();
-          if (accountId) params.append('account.id', accountId);
-          if (limit) params.append('limit', limit.toString());
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/tokens/${tokenId}/balances?${params.toString()}`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'createToken': {
-          const tokenName = this.getNodeParameter('tokenName', i) as string;
-          const tokenSymbol = this.getNodeParameter('tokenSymbol', i) as string;
-          const decimals = this.getNodeParameter('decimals', i) as number;
-          const initialSupply = this.getNodeParameter('initialSupply', i) as number;
-          const treasuryAccountId = this.getNodeParameter('treasuryAccountId', i) as string;
-          const adminKeyStr = this.getNodeParameter('adminKey', i) as string;
-          const memo = this.getNodeParameter('memo', i) as string;
-
-          const client = Client.forMainnet();
-          const adminKey = PrivateKey.fromString(adminKeyStr);
-          client.setOperator(AccountId.fromString(treasuryAccountId), adminKey);
-
-          const tokenCreateTx = new TokenCreateTransaction()
-            .setTokenName(tokenName)
-            .setTokenSymbol(tokenSymbol)
-            .setDecimals(decimals)
-            .setInitialSupply(initialSupply)
-            .setTreasuryAccountId(AccountId.fromString(treasuryAccountId))
-            .setAdminKey(adminKey);
-
-          if (memo) {
-            tokenCreateTx.setTokenMemo(memo);
-          }
-
-          const txResponse = await tokenCreateTx.execute(client);
-          const receipt = await txResponse.getReceipt(client);
-          
-          result = {
-            transactionId: txResponse.transactionId?.toString(),
-            tokenId: receipt.tokenId?.toString(),
-            status: receipt.status.toString(),
-          };
-          break;
-        }
-
-        case 'updateToken': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const adminKeyStr = this.getNodeParameter('adminKey', i) as string;
-          const memo = this.getNodeParameter('memo', i) as string;
-
-          if (!tokenId) {
-            throw new NodeOperationError(this.getNode(), 'Token ID is required');
-          }
-
-          const client = Client.forMainnet();
-          const adminKey = PrivateKey.fromString(adminKeyStr);
-          client.setOperator(adminKey.publicKey.toAccountId(0, 0, 2), adminKey);
-
-          const tokenUpdateTx = new TokenUpdateTransaction()
-            .setTokenId(tokenId);
-
-          if (memo) {
-            tokenUpdateTx.setTokenMemo(memo);
-          }
-
-          const txResponse = await tokenUpdateTx.execute(client);
-          const receipt = await txResponse.getReceipt(client);
-
-          result = {
-            transactionId: txResponse.transactionId?.toString(),
-            status: receipt.status.toString(),
-          };
-          break;
-        }
-
-        case 'deleteToken': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const adminKeyStr = this.getNodeParameter('adminKey', i) as string;
-
-          if (!tokenId) {
-            throw new NodeOperationError(this.getNode(), 'Token ID is required');
-          }
-
-          const client = Client.forMainnet();
-          const adminKey = PrivateKey.fromString(adminKeyStr);
-          client.setOperator(adminKey.publicKey.toAccountId(0, 0, 2), adminKey);
-
-          const tokenDeleteTx = new TokenDeleteTransaction()
-            .setTokenId(tokenId);
-
-          const txResponse = await tokenDeleteTx.execute(client);
-          const receipt = await txResponse.getReceipt(client);
-
-          result = {
-            transactionId: txResponse.transactionId?.toString(),
-            status: receipt.status.toString(),
-          };
-          break;
-        }
-
-        case 'associateToken': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const targetAccountId = this.getNodeParameter('targetAccountId', i) as string;
-          const accountKeyStr = this.getNodeParameter('accountKey', i) as string;
-
-          if (!tokenId) {
-            throw new NodeOperationError(this.getNode(), 'Token ID is required');
-          }
-
-          const client = Client.forMainnet();
-          const accountKey = PrivateKey.fromString(accountKeyStr);
-          client.setOperator(AccountId.fromString(targetAccountId), accountKey);
-
-          const tokenAssociateTx = new TokenAssociateTransaction()
-            .setAccountId(AccountId.fromString(targetAccountId))
-            .setTokenIds([tokenId]);
-
-          const txResponse = await tokenAssociateTx.execute(client);
-          const receipt = await txResponse.getReceipt(client);
-
-          result = {
-            transactionId: txResponse.transactionId?.toString(),
-            status: receipt.status.toString(),
-          };
-          break;
-        }
-
-        case 'transferToken': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const fromAccountId = this.getNodeParameter('fromAccountId', i) as string;
-          const toAccountId = this.getNodeParameter('toAccountId', i) as string;
-          const amount = this.getNodeParameter('amount', i) as number;
-          const accountKeyStr = this.getNodeParameter('accountKey', i) as string;
-          const memo = this.getNodeParameter('memo', i) as string;
-
-          if (!tokenId) {
-            throw new NodeOperationError(this.getNode(), 'Token ID is required');
-          }
-
-          const client = Client.forMainnet();
-          const accountKey = PrivateKey.fromString(accountKeyStr);
-          client.setOperator(AccountId.fromString(fromAccountId), accountKey);
-
-          const transferTx = new TransferTransaction()
-            .addTokenTransfer(tokenId, AccountId.fromString(fromAccountId), -amount)
-            .addTokenTransfer(tokenId, AccountId.fromString(toAccountId), amount);
-
-          if (memo) {
-            transferTx.setTransactionMemo(memo);
-          }
-
-          const txResponse = await transferTx.execute(client);
-          const receipt = await txResponse.getReceipt(client);
-
-          result = {
-            transactionId: txResponse.transactionId?.toString(),
-            status: receipt.status.toString(),
-          };
-          break;
-        }
-
         default:
           throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
       }
@@ -1743,7 +2076,7 @@ async function executeTokensOperations(
       if (this.continueOnFail()) {
         returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
       } else {
-        throw new NodeApiError(this.getNode(), error);
+        throw error;
       }
     }
   }
@@ -1751,671 +2084,10 @@ async function executeTokensOperations(
   return returnData;
 }
 
-async function executeNftsOperations(
+async function executeTransactionOperations(
   this: IExecuteFunctions,
   items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
   const returnData: INodeExecutionData[] = [];
   const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('hederahashgraphApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getNfts': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const limit = this.getNodeParameter('limit', i, 25) as number;
-          const order = this.getNodeParameter('order', i, 'asc') as string;
-          const serialNumber = this.getNodeParameter('serialNumber', i, undefined) as number | undefined;
-
-          let url = `${credentials.baseUrl}/tokens/${tokenId}/nfts?limit=${limit}&order=${order}`;
-          if (serialNumber !== undefined) {
-            url += `&serialnumber=${serialNumber}`;
-          }
-
-          const options: any = {
-            method: 'GET',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getNft': {
-          const tokenId = this.getNodeParameter('tokenId', i) as string;
-          const serialNumber = this.getNodeParameter('serialNumber', i) as number;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/tokens/${tokenId}/nfts/${serialNumber}`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAccountNfts': {
-          const accountId = this.getNodeParameter('accountId', i) as string;
-          const limit = this.getNodeParameter('limit', i, 25) as number;
-          const filterTokenId = this.getNodeParameter('filterTokenId', i, '') as string;
-
-          let url = `${credentials.baseUrl}/accounts/${accountId}/nfts?limit=${limit}`;
-          if (filterTokenId) {
-            url += `&token.id=${filterTokenId}`;
-          }
-
-          const options: any = {
-            method: 'GET',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'mintNft': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'transferNft': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'burnNft': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'updateNftMetadata': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(
-            this.getNode(),
-            `Unknown operation: ${operation}`,
-            { itemIndex: i }
-          );
-      }
-
-      returnData.push({ json: result, pairedItem: { item: i } });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({
-          json: { error: error.message },
-          pairedItem: { item: i },
-        });
-      } else {
-        throw new NodeApiError(this.getNode(), error, { itemIndex: i });
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeTopicsOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('hederahashgraphApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getTopics': {
-          const queryParams: any = {};
-          const limit = this.getNodeParameter('limit', i, 25) as number;
-          const order = this.getNodeParameter('order', i, 'desc') as string;
-          const topicId = this.getNodeParameter('topicId', i, '') as string;
-
-          if (limit) queryParams.limit = limit;
-          if (order) queryParams.order = order;
-          if (topicId) queryParams['topic.id'] = topicId;
-
-          const queryString = new URLSearchParams(queryParams).toString();
-          const url = `${credentials.baseUrl}/topics${queryString ? '?' + queryString : ''}`;
-
-          const options: any = {
-            method: 'GET',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTopic': {
-          const topicId = this.getNodeParameter('topicId', i) as string;
-          const url = `${credentials.baseUrl}/topics/${topicId}`;
-
-          const options: any = {
-            method: 'GET',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTopicMessages': {
-          const topicId = this.getNodeParameter('topicId', i) as string;
-          const queryParams: any = {};
-          const limit = this.getNodeParameter('limit', i, 25) as number;
-          const order = this.getNodeParameter('order', i, 'desc') as string;
-          const timestamp = this.getNodeParameter('timestamp', i, '') as string;
-
-          if (limit) queryParams.limit = limit;
-          if (order) queryParams.order = order;
-          if (timestamp) queryParams.timestamp = timestamp;
-
-          const queryString = new URLSearchParams(queryParams).toString();
-          const url = `${credentials.baseUrl}/topics/${topicId}/messages${queryString ? '?' + queryString : ''}`;
-
-          const options: any = {
-            method: 'GET',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTopicMessage': {
-          const topicId = this.getNodeParameter('topicId', i) as string;
-          const sequenceNumber = this.getNodeParameter('sequenceNumber', i) as number;
-          const url = `${credentials.baseUrl}/topics/${topicId}/messages/${sequenceNumber}`;
-
-          const options: any = {
-            method: 'GET',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'createTopic': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-          const url = `${credentials.baseUrl}/transactions`;
-
-          const options: any = {
-            method: 'POST',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              signedTransaction,
-            }),
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'updateTopic': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-          const url = `${credentials.baseUrl}/transactions`;
-
-          const options: any = {
-            method: 'POST',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              signedTransaction,
-            }),
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'deleteTopic': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-          const url = `${credentials.baseUrl}/transactions`;
-
-          const options: any = {
-            method: 'POST',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              signedTransaction,
-            }),
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'submitMessage': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-          const url = `${credentials.baseUrl}/transactions`;
-
-          const options: any = {
-            method: 'POST',
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              signedTransaction,
-            }),
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({
-          json: { error: error.message },
-          pairedItem: { item: i },
-        });
-      } else {
-        if (error.response && error.response.body) {
-          throw new NodeApiError(this.getNode(), error.response.body, { itemIndex: i });
-        } else {
-          throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
-        }
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeTransactionsOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('hederahashgraphApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getTransactions': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const order = this.getNodeParameter('order', i) as string;
-          const accountId = this.getNodeParameter('accountId', i) as string;
-          const timestamp = this.getNodeParameter('timestamp', i) as string;
-          const transactionType = this.getNodeParameter('transactionType', i) as string;
-
-          const queryParams: any = {
-            limit: limit.toString(),
-            order,
-          };
-
-          if (accountId) queryParams['account.id'] = accountId;
-          if (timestamp) queryParams.timestamp = timestamp;
-          if (transactionType) queryParams.transactiontype = transactionType;
-
-          const queryString = new URLSearchParams(queryParams).toString();
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/transactions?${queryString}`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTransaction': {
-          const transactionId = this.getNodeParameter('transactionId', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/transactions/${encodeURIComponent(transactionId)}`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTransactionStateProof': {
-          const transactionId = this.getNodeParameter('transactionId', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/transactions/${encodeURIComponent(transactionId)}/stateproof`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'submitTransaction': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as any;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: signedTransaction,
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAccountTransactions': {
-          const accountId = this.getNodeParameter('accountId', i) as string;
-          const limit = this.getNodeParameter('limit', i) as number;
-          const order = this.getNodeParameter('order', i) as string;
-          const type = this.getNodeParameter('type', i) as string;
-
-          const queryParams: any = {
-            limit: limit.toString(),
-            order,
-          };
-
-          if (type) queryParams.type = type;
-
-          const queryString = new URLSearchParams(queryParams).toString();
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/accounts/${encodeURIComponent(accountId)}/transactions?${queryString}`,
-            headers: {
-              'Accept': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({
-          json: { error: error.message },
-          pairedItem: { item: i },
-        });
-      } else {
-        throw new NodeApiError(this.getNode(), error);
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeSchedulesOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('hederahashgraphApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getSchedules': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const order = this.getNodeParameter('order', i) as string;
-          const scheduleId = this.getNodeParameter('scheduleId', i) as string;
-
-          const queryParams: any = {
-            limit: limit.toString(),
-            order: order,
-          };
-
-          if (scheduleId) {
-            queryParams['schedule.id'] = scheduleId;
-          }
-
-          const queryString = new URLSearchParams(queryParams).toString();
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/schedules?${queryString}`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getSchedule': {
-          const scheduleId = this.getNodeParameter('scheduleId', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/schedules/${scheduleId}`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'createSchedule': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction: signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'signSchedule': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction: signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'deleteSchedule': {
-          const signedTransaction = this.getNodeParameter('signedTransaction', i) as string;
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/transactions`,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: {
-              signedTransaction: signedTransaction,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({ json: result, pairedItem: { item: i } });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({ 
-          json: { error: error.message }, 
-          pairedItem: { item: i } 
-        });
-      } else {
-        throw new NodeApiError(this.getNode(), error);
-      }
-    }
-  }
-
-  return returnData;
-}
+  const credentials = await this.getCred
