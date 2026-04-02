@@ -67,1081 +67,373 @@ describe('HederaHashgraph Node', () => {
   });
 
   // Resource-specific tests
-describe('Accounts Resource', () => {
+describe('Account Resource', () => {
   let mockExecuteFunctions: any;
 
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1' 
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
+      helpers: { 
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
+        requestWithAuthentication: jest.fn() 
       },
     };
   });
 
-  test('should get accounts successfully', async () => {
-    const mockResponse = {
-      accounts: [
-        {
-          account: '0.0.1001',
-          balance: { balance: 1000000000 },
-          key: { _type: 'ED25519' }
-        }
-      ],
-      links: { next: null }
-    };
+  it('should get all accounts successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getAllAccounts')
+      .mockReturnValueOnce(25)
+      .mockReturnValueOnce('desc')
+      .mockReturnValueOnce('');
 
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getAccounts';
-        case 'limit': return 25;
-        case 'order': return 'asc';
-        case 'accountIdFilter': return '';
-        default: return undefined;
-      }
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+      accounts: [{ account: '0.0.123', balance: { balance: 1000000000 } }]
     });
 
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeAccountsOperations.call(mockExecuteFunctions, items);
+    const result = await executeAccountOperations.call(
+      mockExecuteFunctions,
+      [{ json: {} }]
+    );
 
     expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/accounts?limit=25&order=asc',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('should get specific account successfully', async () => {
-    const mockResponse = {
-      account: '0.0.1001',
-      balance: { balance: 1000000000 },
-      key: { _type: 'ED25519' }
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getAccount';
-        case 'accountId': return '0.0.1001';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeAccountsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/accounts/0.0.1001',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('should get account transactions successfully', async () => {
-    const mockResponse = {
-      transactions: [
-        {
-          consensus_timestamp: '1234567890.123456789',
-          transaction_id: '0.0.1001-1234567890-123456789',
-          transfers: []
-        }
-      ],
-      links: { next: null }
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getAccountTransactions';
-        case 'accountId': return '0.0.1001';
-        case 'limit': return 25;
-        case 'order': return 'desc';
-        case 'timestamp': return '';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeAccountsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/accounts/0.0.1001/transactions?limit=25&order=desc',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('should get account balances successfully', async () => {
-    const mockResponse = {
-      timestamp: '1234567890.123456789',
-      balances: [
-        {
-          account: '0.0.1001',
-          balance: 1000000000
-        }
-      ]
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getAccountBalances';
-        case 'accountId': return '0.0.1001';
-        case 'timestamp': return '';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeAccountsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/accounts/0.0.1001/balances',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('should submit transaction successfully', async () => {
-    const mockResponse = {
-      transaction_id: '0.0.1001-1234567890-123456789',
-      status: 'SUCCESS'
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'submitTransaction';
-        case 'signedTransaction': return 'base64encodedtransactionbytes';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeAccountsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer test-api-key',
-      },
-      body: JSON.stringify({
-        signedTransactionBytes: 'base64encodedtransactionbytes',
-      }),
-      json: true,
-    });
-  });
-
-  test('should handle API errors with continueOnFail', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getAccount';
-        case 'accountId': return '0.0.invalid';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-    const apiError = new Error('Account not found');
-    apiError.cause = {
-      httpCode: 404,
-      body: { message: 'Account not found' }
-    };
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(apiError);
-
-    const items = [{ json: {} }];
-    const result = await executeAccountsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual({
-      error: 'Account not found',
-      statusCode: 404,
-      operation: 'getAccount'
-    });
-  });
-
-  test('should throw error for unknown operation', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      if (param === 'operation') return 'unknownOperation';
-      return undefined;
-    });
-
-    const items = [{ json: {} }];
-
-    await expect(executeAccountsOperations.call(mockExecuteFunctions, items))
-      .rejects
-      .toThrow('Unknown operation: unknownOperation');
-  });
-});
-
-describe('Tokens Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  describe('getTokens operation', () => {
-    it('should retrieve list of tokens successfully', async () => {
-      const mockResponse = {
-        tokens: [
-          {
-            token_id: '0.0.123456',
-            name: 'Test Token',
-            symbol: 'TEST',
-            type: 'FUNGIBLE_COMMON',
-          },
-        ],
-      };
-
-      mockExecuteFunctions.getNodeParameter
-        .mockReturnValueOnce('getTokens')
-        .mockReturnValueOnce(25)
-        .mockReturnValueOnce('desc')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce('all');
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+    expect(result[0].json.accounts).toBeDefined();
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
         method: 'GET',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens?limit=25&order=desc',
-        headers: { 'Accept': 'application/json' },
-        json: true,
-      });
-    });
+        url: expect.stringContaining('/accounts'),
+      })
+    );
   });
 
-  describe('getToken operation', () => {
-    it('should retrieve specific token successfully', async () => {
-      const mockResponse = {
-        token_id: '0.0.123456',
-        name: 'Test Token',
-        symbol: 'TEST',
-        type: 'FUNGIBLE_COMMON',
-      };
+  it('should get specific account successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getAccount')
+      .mockReturnValueOnce('0.0.123')
+      .mockReturnValueOnce('');
 
-      mockExecuteFunctions.getNodeParameter
-        .mockReturnValueOnce('getToken')
-        .mockReturnValueOnce('0.0.123456');
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123456',
-        headers: { 'Accept': 'application/json' },
-        json: true,
-      });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+      account: '0.0.123',
+      balance: { balance: 1000000000 }
     });
 
-    it('should throw error when token ID is missing', async () => {
-      mockExecuteFunctions.getNodeParameter
-        .mockReturnValueOnce('getToken')
-        .mockReturnValueOnce('');
+    const result = await executeAccountOperations.call(
+      mockExecuteFunctions,
+      [{ json: {} }]
+    );
 
-      await expect(
-        executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow('Token ID is required');
-    });
+    expect(result).toHaveLength(1);
+    expect(result[0].json.account).toBe('0.0.123');
   });
 
-  describe('getTokenBalances operation', () => {
-    it('should retrieve token balances successfully', async () => {
-      const mockResponse = {
-        balances: [
-          {
-            account: '0.0.789',
-            balance: 1000000,
-          },
-        ],
-      };
+  it('should get account transactions successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getAccountTransactions')
+      .mockReturnValueOnce('0.0.123')
+      .mockReturnValueOnce(25)
+      .mockReturnValueOnce('desc')
+      .mockReturnValueOnce('');
 
-      mockExecuteFunctions.getNodeParameter
-        .mockReturnValueOnce('getTokenBalances')
-        .mockReturnValueOnce('0.0.123456')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce(25);
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123456/balances?limit=25',
-        headers: { 'Accept': 'application/json' },
-        json: true,
-      });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+      transactions: [{ transaction_id: '0.0.123-1234567890-123456789' }]
     });
+
+    const result = await executeAccountOperations.call(
+      mockExecuteFunctions,
+      [{ json: {} }]
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json.transactions).toBeDefined();
   });
 
-  describe('error handling', () => {
-    it('should handle API errors gracefully when continueOnFail is true', async () => {
-      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getTokens');
-      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+  it('should get account tokens successfully', async () => {
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getAccountTokens')
+      .mockReturnValueOnce('0.0.123')
+      .mockReturnValueOnce(25)
+      .mockReturnValueOnce('desc');
 
-      const result = await executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json.error).toBe('API Error');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+      tokens: [{ token_id: '0.0.456', balance: 100 }]
     });
 
-    it('should throw error when continueOnFail is false', async () => {
-      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getTokens');
-      mockExecuteFunctions.continueOnFail.mockReturnValue(false);
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+    const result = await executeAccountOperations.call(
+      mockExecuteFunctions,
+      [{ json: {} }]
+    );
 
-      await expect(
-        executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow();
-    });
+    expect(result).toHaveLength(1);
+    expect(result[0].json.tokens).toBeDefined();
   });
 
-  describe('unknown operation', () => {
-    it('should throw error for unknown operation', async () => {
-      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('unknownOperation');
-
-      await expect(
-        executeTokensOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow('Unknown operation: unknownOperation');
-    });
-  });
-});
-
-describe('Nfts Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  it('should get NFTs for token successfully', async () => {
-    const mockResponse = {
-      nfts: [
-        {
-          token_id: '0.0.123456',
-          serial_number: 1,
-          metadata: 'dGVzdCBtZXRhZGF0YQ==',
-        },
-      ],
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation':
-          return 'getNfts';
-        case 'tokenId':
-          return '0.0.123456';
-        case 'limit':
-          return 25;
-        case 'order':
-          return 'asc';
-        default:
-          return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeNftsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123456/nfts?limit=25&order=asc',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      json: true,
-    });
-  });
-
-  it('should get specific NFT successfully', async () => {
-    const mockResponse = {
-      token_id: '0.0.123456',
-      serial_number: 1,
-      metadata: 'dGVzdCBtZXRhZGF0YQ==',
-      account_id: '0.0.987654',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation':
-          return 'getNft';
-        case 'tokenId':
-          return '0.0.123456';
-        case 'serialNumber':
-          return 1;
-        default:
-          return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeNftsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123456/nfts/1',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      json: true,
-    });
-  });
-
-  it('should get account NFTs successfully', async () => {
-    const mockResponse = {
-      nfts: [
-        {
-          token_id: '0.0.123456',
-          serial_number: 1,
-          account_id: '0.0.987654',
-        },
-      ],
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation':
-          return 'getAccountNfts';
-        case 'accountId':
-          return '0.0.987654';
-        case 'limit':
-          return 25;
-        case 'filterTokenId':
-          return '';
-        default:
-          return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeNftsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/accounts/0.0.987654/nfts?limit=25',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      json: true,
-    });
-  });
-
-  it('should mint NFT successfully', async () => {
-    const mockResponse = {
-      status: 'SUCCESS',
-      transaction_id: '0.0.123@1234567890.123456789',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation':
-          return 'mintNft';
-        case 'signedTransaction':
-          return '0x1234567890abcdef';
-        default:
-          return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeNftsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        signedTransaction: '0x1234567890abcdef',
-      },
-      json: true,
-    });
-  });
-
-  it('should handle errors correctly', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation':
-          return 'getNfts';
-        case 'tokenId':
-          return '0.0.123456';
-        default:
-          return undefined;
-      }
-    });
-
-    const error = new Error('API Error');
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(error);
+  it('should handle API errors gracefully', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getAllAccounts');
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
     mockExecuteFunctions.continueOnFail.mockReturnValue(true);
 
-    const result = await executeNftsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    const result = await executeAccountOperations.call(
+      mockExecuteFunctions,
+      [{ json: {} }]
+    );
 
-    expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
+    expect(result).toHaveLength(1);
+    expect(result[0].json.error).toBe('API Error');
   });
 
   it('should throw error for unknown operation', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      if (paramName === 'operation') {
-        return 'unknownOperation';
-      }
-      return undefined;
-    });
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('unknownOperation');
 
     await expect(
-      executeNftsOperations.call(mockExecuteFunctions, [{ json: {} }])
+      executeAccountOperations.call(mockExecuteFunctions, [{ json: {} }])
     ).rejects.toThrow('Unknown operation: unknownOperation');
   });
 });
 
-describe('Topics Resource', () => {
+describe('Transaction Resource', () => {
   let mockExecuteFunctions: any;
 
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1'
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
+      helpers: { httpRequest: jest.fn(), requestWithAuthentication: jest.fn() },
     };
   });
 
-  describe('getTopics', () => {
-    it('should get list of topics successfully', async () => {
-      const mockResponse = {
-        topics: [
-          {
-            topic_id: '0.0.1234',
-            memo: 'Test topic',
-            running_hash: 'abc123',
-            running_hash_version: 3,
-          },
-        ],
-        links: { next: null },
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'getTopics';
-        if (paramName === 'limit') return 25;
-        if (paramName === 'order') return 'desc';
-        if (paramName === 'topicId') return '';
-        return fallback;
-      });
+  describe('getAllTransactions', () => {
+    it('should get all transactions successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getAllTransactions')
+        .mockReturnValueOnce(25)
+        .mockReturnValueOnce('desc')
+        .mockReturnValueOnce('')
+        .mockReturnValueOnce('');
       
+      const mockResponse = { transactions: [{ transaction_id: '0.0.123@1234567890.123456789' }] };
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
+      const result = await executeTransactionOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/topics?limit=25&order=desc',
+        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions?limit=25&order=desc',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-key',
         },
         json: true,
       });
     });
+
+    it('should handle getAllTransactions error', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getAllTransactions');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+
+      await expect(executeTransactionOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('API Error');
+    });
   });
 
-  describe('getTopic', () => {
-    it('should get specific topic successfully', async () => {
-      const mockResponse = {
-        topic_id: '0.0.1234',
-        memo: 'Test topic',
-        running_hash: 'abc123',
-        running_hash_version: 3,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'getTopic';
-        if (paramName === 'topicId') return '0.0.1234';
-        return fallback;
-      });
+  describe('getTransaction', () => {
+    it('should get specific transaction successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getTransaction')
+        .mockReturnValueOnce('0.0.123@1234567890.123456789');
       
+      const mockResponse = { transaction_id: '0.0.123@1234567890.123456789' };
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
+      const result = await executeTransactionOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/topics/0.0.1234',
+        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions/0.0.123@1234567890.123456789',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-key',
         },
         json: true,
       });
     });
-  });
 
-  describe('getTopicMessages', () => {
-    it('should get topic messages successfully', async () => {
-      const mockResponse = {
-        messages: [
-          {
-            consensus_timestamp: '1234567890.123456789',
-            topic_id: '0.0.1234',
-            message: 'SGVsbG8gV29ybGQ=',
-            running_hash: 'abc123',
-            sequence_number: 1,
-          },
-        ],
-        links: { next: null },
-      };
+    it('should handle getTransaction error', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getTransaction');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Transaction not found'));
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'getTopicMessages';
-        if (paramName === 'topicId') return '0.0.1234';
-        if (paramName === 'limit') return 25;
-        if (paramName === 'order') return 'desc';
-        if (paramName === 'timestamp') return '';
-        return fallback;
-      });
-      
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/topics/0.0.1234/messages?limit=25&order=desc',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        json: true,
-      });
+      await expect(executeTransactionOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('Transaction not found');
     });
   });
 
-  describe('createTopic', () => {
-    it('should create topic successfully', async () => {
-      const mockResponse = {
-        transaction_id: '0.0.123@1234567890.123456789',
-        status: 'SUCCESS',
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'createTopic';
-        if (paramName === 'signedTransaction') return 'abcd1234';
-        return fallback;
-      });
+  describe('submitTransaction', () => {
+    it('should submit transaction successfully', async () => {
+      const signedTx = { signedTransaction: 'base64encodedtransaction' };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('submitTransaction')
+        .mockReturnValueOnce(signedTx);
       
+      const mockResponse = { transaction_id: '0.0.123@1234567890.123456789', status: 'SUCCESS' };
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
+      const result = await executeTransactionOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      
+      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'POST',
         url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-key',
         },
-        body: JSON.stringify({
-          signedTransaction: 'abcd1234',
-        }),
+        body: signedTx,
         json: true,
       });
     });
-  });
 
-  describe('submitMessage', () => {
-    it('should submit message successfully', async () => {
-      const mockResponse = {
-        transaction_id: '0.0.123@1234567890.123456789',
-        status: 'SUCCESS',
-      };
+    it('should handle submitTransaction error', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('submitTransaction');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Invalid transaction'));
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'submitMessage';
-        if (paramName === 'signedTransaction') return 'abcd1234';
-        return fallback;
-      });
-      
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'POST',
-        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          signedTransaction: 'abcd1234',
-        }),
-        json: true,
-      });
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle API errors', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'getTopic';
-        if (paramName === 'topicId') return '0.0.invalid';
-        return fallback;
-      });
-
-      const apiError = new Error('Topic not found');
-      apiError.response = {
-        body: { message: 'Topic not found', status: 404 },
-      };
-      
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(apiError);
-
-      await expect(
-        executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow();
-    });
-
-    it('should continue on fail when configured', async () => {
-      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, fallback?: any) => {
-        if (paramName === 'operation') return 'getTopic';
-        if (paramName === 'topicId') return '0.0.invalid';
-        return fallback;
-      });
-
-      const apiError = new Error('Topic not found');
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(apiError);
-
-      const result = await executeTopicsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([
-        {
-          json: { error: 'Topic not found' },
-          pairedItem: { item: 0 },
-        },
-      ]);
+      await expect(executeTransactionOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('Invalid transaction');
     });
   });
 });
 
-describe('Transactions Resource', () => {
+describe('Token Resource', () => {
   let mockExecuteFunctions: any;
 
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1' 
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
+      helpers: { httpRequest: jest.fn(), requestWithAuthentication: jest.fn() },
     };
   });
 
-  test('should get transactions successfully', async () => {
-    const mockResponse = {
-      transactions: [
-        {
-          transaction_id: '0.0.1234-1634567890-123456789',
-          consensus_timestamp: '1634567890.123456789',
-          result: 'SUCCESS',
-          transaction_hash: 'hash123',
-        },
-      ],
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getTransactions';
-        case 'limit': return 25;
-        case 'order': return 'desc';
-        case 'accountId': return '0.0.1234';
-        case 'timestamp': return '';
-        case 'transactionType': return '';
-        default: return undefined;
-      }
-    });
-
+  test('getAllTokens should fetch tokens list successfully', async () => {
+    const mockResponse = { tokens: [{ token_id: '0.0.123', name: 'TestToken' }] };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getAllTokens')
+      .mockReturnValueOnce(25)
+      .mockReturnValueOnce('asc')
+      .mockReturnValueOnce('');
     mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([
-      {
-        json: mockResponse,
-        pairedItem: { item: 0 },
-      },
-    ]);
+    const result = await executeTokenOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    
     expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
       method: 'GET',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions?limit=25&order=desc&account.id=0.0.1234',
-      headers: {
-        'Accept': 'application/json',
-      },
+      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens?limit=25&order=asc',
+      headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-key' },
       json: true,
     });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  test('should get specific transaction successfully', async () => {
-    const mockResponse = {
-      transaction_id: '0.0.1234-1634567890-123456789',
-      consensus_timestamp: '1634567890.123456789',
-      result: 'SUCCESS',
-      transfers: [],
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getTransaction';
-        case 'transactionId': return '0.0.1234-1634567890-123456789';
-        default: return undefined;
-      }
-    });
-
+  test('getToken should fetch specific token successfully', async () => {
+    const mockResponse = { token_id: '0.0.123', name: 'TestToken', symbol: 'TT' };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getToken')
+      .mockReturnValueOnce('0.0.123')
+      .mockReturnValueOnce('');
     mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([
-      {
-        json: mockResponse,
-        pairedItem: { item: 0 },
-      },
-    ]);
-  });
-
-  test('should submit transaction successfully', async () => {
-    const mockResponse = {
-      transaction_id: '0.0.1234-1634567890-123456789',
-      status: 'SUCCESS',
-    };
-
-    const signedTransaction = {
-      signedTransactionBytes: 'base64encodedtransaction',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'submitTransaction';
-        case 'signedTransaction': return signedTransaction;
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([
-      {
-        json: mockResponse,
-        pairedItem: { item: 0 },
-      },
-    ]);
+    const result = await executeTokenOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    
     expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/transactions',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: signedTransaction,
+      method: 'GET',
+      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123',
+      headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-key' },
       json: true,
     });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  test('should get account transactions successfully', async () => {
-    const mockResponse = {
-      transactions: [
-        {
-          transaction_id: '0.0.1234-1634567890-123456789',
-          consensus_timestamp: '1634567890.123456789',
-          result: 'SUCCESS',
-          name: 'CRYPTOTRANSFER',
-        },
-      ],
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getAccountTransactions';
-        case 'accountId': return '0.0.1234';
-        case 'limit': return 25;
-        case 'order': return 'desc';
-        case 'type': return 'CRYPTOTRANSFER';
-        default: return undefined;
-      }
-    });
-
+  test('getTokenBalances should fetch token balances successfully', async () => {
+    const mockResponse = { balances: [{ account: '0.0.456', balance: 1000 }] };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getTokenBalances')
+      .mockReturnValueOnce('0.0.123')
+      .mockReturnValueOnce(25)
+      .mockReturnValueOnce('asc');
     mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-    expect(result).toEqual([
-      {
-        json: mockResponse,
-        pairedItem: { item: 0 },
-      },
-    ]);
+    const result = await executeTokenOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+      method: 'GET',
+      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123/balances?limit=25&order=asc',
+      headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-key' },
+      json: true,
+    });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  test('should handle errors gracefully when continueOnFail is true', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-      switch (param) {
-        case 'operation': return 'getTransaction';
-        case 'transactionId': return 'invalid-transaction-id';
-        default: return undefined;
-      }
-    });
+  test('getTokenNfts should fetch token NFTs successfully', async () => {
+    const mockResponse = { nfts: [{ token_id: '0.0.123', serial_number: 1 }] };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getTokenNfts')
+      .mockReturnValueOnce('0.0.123')
+      .mockReturnValueOnce(25)
+      .mockReturnValueOnce('asc');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Transaction not found'));
+    const result = await executeTokenOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+      method: 'GET',
+      url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/tokens/0.0.123/nfts?limit=25&order=asc',
+      headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-key' },
+      json: true,
+    });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+  });
+
+  test('should handle API errors gracefully', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getAllTokens');
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
     mockExecuteFunctions.continueOnFail.mockReturnValue(true);
 
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    const result = await executeTokenOperations.call(mockExecuteFunctions, [{ json: {} }]);
+    
+    expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
+  });
 
-    expect(result).toEqual([
-      {
-        json: { error: 'Transaction not found' },
-        pairedItem: { item: 0 },
-      },
-    ]);
+  test('should throw error for unknown operation', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('unknownOperation');
+
+    await expect(executeTokenOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('Unknown operation: unknownOperation');
   });
 });
 
-describe('Schedules Resource', () => {
+describe('Schedule Resource', () => {
   let mockExecuteFunctions: any;
 
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
       getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
+        apiKey: 'test-key',
         baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
@@ -1154,175 +446,472 @@ describe('Schedules Resource', () => {
     };
   });
 
-  describe('getSchedules', () => {
-    it('should get list of scheduled transactions', async () => {
+  describe('getAllSchedules', () => {
+    it('should get all schedules successfully', async () => {
       const mockResponse = {
         schedules: [
           {
             schedule_id: '0.0.123',
             creator_account_id: '0.0.456',
+            admin_key: null,
             executed_timestamp: null,
           },
         ],
       };
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getSchedules';
-          case 'limit': return 25;
-          case 'order': return 'desc';
-          case 'scheduleId': return '';
-          default: return undefined;
-        }
-      });
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getAllSchedules')
+        .mockReturnValueOnce(25)
+        .mockReturnValueOnce('desc')
+        .mockReturnValueOnce('');
 
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeSchedulesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      const items = [{ json: {} }];
+      const result = await executeScheduleOperations.call(mockExecuteFunctions, items);
 
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: expect.stringContaining('/schedules'),
-        headers: { 'Content-Type': 'application/json' },
+        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/schedules?limit=25&order=desc',
+        headers: {
+          'Authorization': 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
         json: true,
       });
+
+      expect(result).toEqual([
+        {
+          json: mockResponse,
+          pairedItem: { item: 0 },
+        },
+      ]);
     });
 
-    it('should handle errors when getting schedules', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getSchedules';
-          case 'limit': return 25;
-          case 'order': return 'desc';
-          case 'scheduleId': return '';
-          default: return undefined;
-        }
+    it('should handle getAllSchedules with schedule ID filter', async () => {
+      const mockResponse = {
+        schedules: [
+          {
+            schedule_id: '0.0.123',
+            creator_account_id: '0.0.456',
+            admin_key: null,
+            executed_timestamp: null,
+          },
+        ],
+      };
+
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getAllSchedules')
+        .mockReturnValueOnce(10)
+        .mockReturnValueOnce('asc')
+        .mockReturnValueOnce('0.0.123');
+
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const items = [{ json: {} }];
+      const result = await executeScheduleOperations.call(mockExecuteFunctions, items);
+
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/schedules?limit=10&order=asc&schedule.id=0.0.123',
+        headers: {
+          'Authorization': 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
+        json: true,
       });
 
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+      expect(result).toEqual([
+        {
+          json: mockResponse,
+          pairedItem: { item: 0 },
+        },
+      ]);
+    });
 
-      await expect(
-        executeSchedulesOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow();
+    it('should handle getAllSchedules error', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getAllSchedules')
+        .mockReturnValueOnce(25)
+        .mockReturnValueOnce('desc')
+        .mockReturnValueOnce('');
+
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+      const items = [{ json: {} }];
+      const result = await executeScheduleOperations.call(mockExecuteFunctions, items);
+
+      expect(result).toEqual([
+        {
+          json: { error: 'API Error' },
+          pairedItem: { item: 0 },
+        },
+      ]);
     });
   });
 
   describe('getSchedule', () => {
-    it('should get specific scheduled transaction', async () => {
+    it('should get specific schedule successfully', async () => {
       const mockResponse = {
         schedule_id: '0.0.123',
         creator_account_id: '0.0.456',
+        admin_key: null,
         executed_timestamp: null,
+        scheduled_transaction_body: {},
       };
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getSchedule';
-          case 'scheduleId': return '0.0.123';
-          default: return undefined;
-        }
-      });
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getSchedule')
+        .mockReturnValueOnce('0.0.123');
 
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeSchedulesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      const items = [{ json: {} }];
+      const result = await executeScheduleOperations.call(mockExecuteFunctions, items);
 
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: expect.stringContaining('/schedules/0.0.123'),
-        headers: { 'Content-Type': 'application/json' },
+        url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/schedules/0.0.123',
+        headers: {
+          'Authorization': 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
         json: true,
       });
+
+      expect(result).toEqual([
+        {
+          json: mockResponse,
+          pairedItem: { item: 0 },
+        },
+      ]);
+    });
+
+    it('should handle getSchedule error', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getSchedule')
+        .mockReturnValueOnce('0.0.123');
+
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Schedule not found'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+      const items = [{ json: {} }];
+      const result = await executeScheduleOperations.call(mockExecuteFunctions, items);
+
+      expect(result).toEqual([
+        {
+          json: { error: 'Schedule not found' },
+          pairedItem: { item: 0 },
+        },
+      ]);
     });
   });
+});
 
-  describe('createSchedule', () => {
-    it('should create new scheduled transaction', async () => {
+describe('TopicMessage Resource', () => {
+  let mockExecuteFunctions: any;
+
+  beforeEach(() => {
+    mockExecuteFunctions = {
+      getNodeParameter: jest.fn(),
+      getCredentials: jest.fn().mockResolvedValue({
+        apiKey: 'test-key',
+        baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1'
+      }),
+      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+      continueOnFail: jest.fn().mockReturnValue(false),
+      helpers: {
+        httpRequest: jest.fn(),
+        requestWithAuthentication: jest.fn()
+      }
+    };
+  });
+
+  describe('getTopicMessages operation', () => {
+    it('should get topic messages successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getTopicMessages')
+        .mockReturnValueOnce('0.0.123456')
+        .mockReturnValueOnce(25)
+        .mockReturnValueOnce('desc')
+        .mockReturnValueOnce('')
+        .mockReturnValueOnce('');
+
       const mockResponse = {
-        transaction_id: '0.0.456@1234567890.123456789',
+        messages: [
+          { sequence_number: 1, consensus_timestamp: '1234567890.123456789', message: 'dGVzdA==' }
+        ]
       };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'createSchedule';
-          case 'signedTransaction': return 'base64encodedtransaction';
-          default: return undefined;
-        }
-      });
 
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeSchedulesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      const result = await executeTopicMessageOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }]
+      );
 
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'POST',
-        url: expect.stringContaining('/transactions'),
-        headers: { 'Content-Type': 'application/json' },
-        body: { signedTransaction: 'base64encodedtransaction' },
-        json: true,
-      });
+      expect(result).toEqual([{
+        json: mockResponse,
+        pairedItem: { item: 0 }
+      }]);
+    });
+
+    it('should handle get topic messages error', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getTopicMessages')
+        .mockReturnValueOnce('invalid-topic');
+
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Topic not found'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+      const result = await executeTopicMessageOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }]
+      );
+
+      expect(result).toEqual([{
+        json: { error: 'Topic not found' },
+        pairedItem: { item: 0 }
+      }]);
     });
   });
 
-  describe('signSchedule', () => {
-    it('should add signature to scheduled transaction', async () => {
-      const mockResponse = {
-        transaction_id: '0.0.456@1234567890.123456789',
-      };
+  describe('getTopicMessage operation', () => {
+    it('should get specific topic message successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getTopicMessage')
+        .mockReturnValueOnce('0.0.123456')
+        .mockReturnValueOnce(1);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'signSchedule';
-          case 'signedTransaction': return 'base64encodedsignature';
-          default: return undefined;
-        }
-      });
+      const mockResponse = {
+        sequence_number: 1,
+        consensus_timestamp: '1234567890.123456789',
+        message: 'dGVzdA=='
+      };
 
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeSchedulesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      const result = await executeTopicMessageOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }]
+      );
 
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'POST',
-        url: expect.stringContaining('/transactions'),
-        headers: { 'Content-Type': 'application/json' },
-        body: { signedTransaction: 'base64encodedsignature' },
-        json: true,
-      });
+      expect(result).toEqual([{
+        json: mockResponse,
+        pairedItem: { item: 0 }
+      }]);
     });
   });
 
-  describe('deleteSchedule', () => {
-    it('should delete scheduled transaction', async () => {
-      const mockResponse = {
-        transaction_id: '0.0.456@1234567890.123456789',
-      };
+  describe('submitTopicMessage operation', () => {
+    it('should submit topic message successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('submitTopicMessage')
+        .mockReturnValueOnce('0.0.123456')
+        .mockReturnValueOnce('test message');
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'deleteSchedule';
-          case 'signedTransaction': return 'base64encodeddeletetx';
-          default: return undefined;
-        }
-      });
+      const mockResponse = {
+        transaction_id: '0.0.123456@1234567890.123456789',
+        status: 'SUCCESS'
+      };
 
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      const result = await executeSchedulesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+      const result = await executeTopicMessageOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }]
+      );
 
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'POST',
-        url: expect.stringContaining('/transactions'),
-        headers: { 'Content-Type': 'application/json' },
-        body: { signedTransaction: 'base64encodeddeletetx' },
-        json: true,
-      });
+      expect(result).toEqual([{
+        json: mockResponse,
+        pairedItem: { item: 0 }
+      }]);
+    });
+
+    it('should handle submit message error', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('submitTopicMessage')
+        .mockReturnValueOnce('0.0.123456')
+        .mockReturnValueOnce('test message');
+
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Insufficient HBAR balance'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+      const result = await executeTopicMessageOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }]
+      );
+
+      expect(result).toEqual([{
+        json: { error: 'Insufficient HBAR balance' },
+        pairedItem: { item: 0 }
+      }]);
     });
   });
+});
+
+describe('Contract Resource', () => {
+	let mockExecuteFunctions: any;
+
+	beforeEach(() => {
+		mockExecuteFunctions = {
+			getNodeParameter: jest.fn(),
+			getCredentials: jest.fn().mockResolvedValue({
+				apiKey: 'test-key',
+				baseUrl: 'https://mainnet-public.mirrornode.hedera.com/api/v1',
+			}),
+			getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+			getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+			continueOnFail: jest.fn().mockReturnValue(false),
+			helpers: {
+				httpRequest: jest.fn(),
+				requestWithAuthentication: jest.fn(),
+			},
+		};
+	});
+
+	describe('getAllContracts operation', () => {
+		it('should get all contracts successfully', async () => {
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getAllContracts')
+				.mockReturnValueOnce(25)
+				.mockReturnValueOnce('desc')
+				.mockReturnValueOnce('');
+
+			const mockResponse = {
+				contracts: [
+					{ contract_id: '0.0.1001', created_timestamp: '1234567890.123456789' },
+				],
+			};
+
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeContractOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+				method: 'GET',
+				url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/contracts?limit=25&order=desc',
+				headers: {
+					'Authorization': 'Bearer test-key',
+					'Content-Type': 'application/json',
+				},
+				json: true,
+			});
+
+			expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+		});
+
+		it('should handle getAllContracts error', async () => {
+			mockExecuteFunctions.getNodeParameter.mockReturnValue('getAllContracts');
+			mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+			mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+			const result = await executeContractOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('getContract operation', () => {
+		it('should get specific contract successfully', async () => {
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContract')
+				.mockReturnValueOnce('0.0.1001');
+
+			const mockResponse = {
+				contract_id: '0.0.1001',
+				created_timestamp: '1234567890.123456789',
+			};
+
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeContractOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+				method: 'GET',
+				url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/contracts/0.0.1001',
+				headers: {
+					'Authorization': 'Bearer test-key',
+					'Content-Type': 'application/json',
+				},
+				json: true,
+			});
+
+			expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+		});
+
+		it('should handle getContract error', async () => {
+			mockExecuteFunctions.getNodeParameter.mockReturnValue('getContract');
+			mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Contract not found'));
+			mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+			const result = await executeContractOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: { error: 'Contract not found' }, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('getContractResults operation', () => {
+		it('should get contract results successfully', async () => {
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContractResults')
+				.mockReturnValueOnce(25)
+				.mockReturnValueOnce('desc')
+				.mockReturnValueOnce('1234567890.123456789');
+
+			const mockResponse = {
+				results: [
+					{ transaction_id: '0.0.1001@1234567890.123456789' },
+				],
+			};
+
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeContractOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+				method: 'GET',
+				url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/contracts/results?limit=25&order=desc&timestamp=1234567890.123456789',
+				headers: {
+					'Authorization': 'Bearer test-key',
+					'Content-Type': 'application/json',
+				},
+				json: true,
+			});
+
+			expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('getContractResult operation', () => {
+		it('should get specific contract result successfully', async () => {
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContractResult')
+				.mockReturnValueOnce('0.0.1001@1234567890.123456789');
+
+			const mockResponse = {
+				transaction_id: '0.0.1001@1234567890.123456789',
+				result: 'SUCCESS',
+			};
+
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+			const result = await executeContractOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+				method: 'GET',
+				url: 'https://mainnet-public.mirrornode.hedera.com/api/v1/contracts/results/0.0.1001@1234567890.123456789',
+				headers: {
+					'Authorization': 'Bearer test-key',
+					'Content-Type': 'application/json',
+				},
+				json: true,
+			});
+
+			expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+		});
+	});
 });
 });
