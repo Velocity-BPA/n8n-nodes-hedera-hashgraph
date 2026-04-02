@@ -8,25 +8,25 @@
 >
 > For licensing information, visit https://velobpa.com/licensing or contact licensing@velobpa.com.
 
-This n8n community node provides comprehensive integration with Hedera Hashgraph, enabling you to interact with 6 core resources (Accounts, Tokens, NFTs, Topics, Transactions, Schedules) through automated workflows. Build powerful DLT applications with account management, token operations, consensus messaging, and smart contract scheduling capabilities.
+An n8n community node providing comprehensive integration with Hedera Hashgraph's distributed ledger technology. This node implements 6 core resources enabling account management, transaction processing, token operations, scheduled transactions, consensus messaging, and smart contract interactions on the Hedera network.
 
 ![n8n Community Node](https://img.shields.io/badge/n8n-Community%20Node-blue)
 ![License](https://img.shields.io/badge/license-BSL--1.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
-![Hedera Hashgraph](https://img.shields.io/badge/Hedera-Hashgraph-purple)
-![DLT](https://img.shields.io/badge/DLT-Distributed%20Ledger-green)
-![Consensus](https://img.shields.io/badge/Consensus-Service-orange)
+![Hedera](https://img.shields.io/badge/Hedera-Hashgraph-purple)
+![DLT](https://img.shields.io/badge/DLT-Ready-green)
+![Enterprise](https://img.shields.io/badge/Enterprise-Grade-orange)
 
 ## Features
 
-- **Account Management** - Create, update, and query Hedera accounts with balance and key management
-- **Token Operations** - Mint, burn, transfer, and manage fungible and non-fungible tokens
-- **NFT Support** - Full NFT lifecycle management including metadata and ownership transfers
-- **Consensus Service** - Publish and subscribe to immutable message streams via HCS topics
-- **Transaction Handling** - Execute, query, and monitor transaction status with detailed receipts
-- **Smart Scheduling** - Create and manage scheduled transactions for automated execution
-- **Multi-Network Support** - Works with mainnet, testnet, and previewnet environments
-- **Comprehensive Error Handling** - Detailed error messages and transaction failure diagnostics
+- **Account Management** - Create, update, and query Hedera accounts with comprehensive balance and transaction history tracking
+- **Transaction Processing** - Execute HBAR transfers, multi-signature transactions, and complex payment workflows with finality guarantees
+- **Token Operations** - Create, mint, burn, transfer, and manage fungible and non-fungible tokens on Hedera Token Service
+- **Scheduled Transactions** - Create, sign, and execute time-delayed transactions with multi-party approval workflows
+- **Consensus Service** - Submit and subscribe to topic messages for decentralized messaging and audit trails
+- **Smart Contract Integration** - Deploy, call, and query Hedera smart contracts with full EVM compatibility
+- **Real-time Monitoring** - Track transaction status, account changes, and network events with instant finality
+- **Enterprise Security** - Multi-signature support, threshold keys, and enterprise-grade cryptographic operations
 
 ## Installation
 
@@ -61,133 +61,144 @@ n8n start
 
 | Field | Description | Required |
 |-------|-------------|----------|
+| Network | Hedera network environment (mainnet, testnet, previewnet) | Yes |
 | Account ID | Your Hedera account ID (format: 0.0.xxxxx) | Yes |
 | Private Key | Account private key in DER or hex format | Yes |
-| Network | Target network (mainnet, testnet, previewnet) | Yes |
-| Mirror Node URL | Optional custom mirror node endpoint | No |
-| Operator Key | Additional operator private key for multi-sig operations | No |
+| API Key | Optional API key for enhanced rate limits | No |
 
 ## Resources & Operations
 
-### 1. Accounts
+### 1. Account
 
 | Operation | Description |
 |-----------|-------------|
 | Create | Create a new Hedera account with initial balance |
-| Get Info | Retrieve account information and balance |
-| Update | Update account keys, memo, or properties |
-| Delete | Delete an account and transfer remaining balance |
-| Get Balance | Get current HBAR balance for an account |
-| Get Records | Retrieve transaction records for an account |
+| Get Balance | Retrieve account balance and token holdings |
+| Get Info | Get detailed account information and properties |
+| Update | Modify account properties and keys |
+| Delete | Mark account for deletion and transfer remaining balance |
+| Get Records | Retrieve account transaction history |
 
-### 2. Tokens
-
-| Operation | Description |
-|-----------|-------------|
-| Create | Create a new fungible token with custom properties |
-| Mint | Mint additional token supply |
-| Burn | Burn tokens from treasury account |
-| Transfer | Transfer tokens between accounts |
-| Associate | Associate token with an account |
-| Dissociate | Dissociate token from an account |
-| Freeze | Freeze token transfers for an account |
-| Unfreeze | Unfreeze token transfers for an account |
-| Grant KYC | Grant KYC status to an account |
-| Revoke KYC | Revoke KYC status from an account |
-| Update | Update token properties and treasury |
-| Delete | Delete a token permanently |
-| Get Info | Get token information and supply details |
-
-### 3. NFTs
+### 2. Transaction
 
 | Operation | Description |
 |-----------|-------------|
-| Create Collection | Create a new NFT collection token |
-| Mint | Mint new NFTs with metadata |
-| Transfer | Transfer NFT ownership between accounts |
-| Burn | Burn/destroy specific NFTs |
-| Get Info | Get NFT metadata and ownership information |
-| Get Collection Info | Get NFT collection details and statistics |
-| Update Metadata | Update NFT metadata (if mutable) |
-
-### 4. Topics
-
-| Operation | Description |
-|-----------|-------------|
-| Create | Create a new HCS consensus topic |
-| Update | Update topic properties and admin keys |
-| Delete | Delete a consensus topic |
-| Submit Message | Submit a message to a topic |
-| Get Info | Get topic information and sequence numbers |
-| Get Messages | Retrieve messages from a topic |
-
-### 5. Transactions
-
-| Operation | Description |
-|-----------|-------------|
-| Get | Retrieve transaction details by ID |
+| Transfer HBAR | Send HBAR between accounts with memo support |
+| Transfer Tokens | Transfer fungible or non-fungible tokens |
+| Get Transaction | Retrieve transaction details by transaction ID |
 | Get Receipt | Get transaction receipt and status |
-| Get Record | Get detailed transaction record |
-| List | List transactions for an account |
-| Monitor Status | Monitor transaction status until consensus |
+| Get Record | Get complete transaction record with fees |
+| Multi Transfer | Execute complex multi-party transfers in single transaction |
 
-### 6. Schedules
+### 3. Token
 
 | Operation | Description |
 |-----------|-------------|
-| Create | Schedule a transaction for future execution |
-| Sign | Add signature to a scheduled transaction |
-| Delete | Delete a scheduled transaction |
-| Get Info | Get scheduled transaction details |
-| List | List scheduled transactions for an account |
+| Create | Create new fungible or non-fungible token |
+| Mint | Mint additional token supply |
+| Burn | Burn tokens from treasury or associated accounts |
+| Associate | Associate token with account for transfers |
+| Dissociate | Remove token association from account |
+| Update | Modify token properties and settings |
+| Get Info | Retrieve token metadata and supply information |
+| Freeze/Unfreeze | Control token transferability for specific accounts |
+
+### 4. Schedule
+
+| Operation | Description |
+|-----------|-------------|
+| Create | Create scheduled transaction for future execution |
+| Sign | Add signature to pending scheduled transaction |
+| Get Info | Retrieve scheduled transaction details and signers |
+| Delete | Cancel pending scheduled transaction |
+| Execute | Manually trigger scheduled transaction execution |
+
+### 5. TopicMessage
+
+| Operation | Description |
+|-----------|-------------|
+| Create Topic | Create new consensus topic |
+| Submit Message | Submit message to consensus topic |
+| Get Topic Info | Retrieve topic metadata and settings |
+| Update Topic | Modify topic properties and access controls |
+| Delete Topic | Mark topic for deletion |
+| Subscribe | Subscribe to real-time topic message stream |
+
+### 6. Contract
+
+| Operation | Description |
+|-----------|-------------|
+| Create | Deploy smart contract to Hedera network |
+| Call | Execute contract function with parameters |
+| Query | Read contract state without state changes |
+| Get Info | Retrieve contract metadata and bytecode |
+| Update | Modify contract properties and admin key |
+| Delete | Mark contract for deletion |
+| Get Records | Retrieve contract execution history |
 
 ## Usage Examples
 
 ```javascript
-// Create a new Hedera account
-const accountData = {
-  "initialBalance": 100,
-  "publicKey": "302a300506032b6570032100...",
-  "memo": "New account created via n8n"
-};
-
-// Transfer HBAR between accounts  
-const transferData = {
-  "fromAccount": "0.0.12345",
-  "toAccount": "0.0.67890", 
-  "amount": 50.5,
+// Transfer HBAR between accounts
+{
+  "resource": "Transaction",
+  "operation": "Transfer HBAR",
+  "fromAccountId": "0.0.12345",
+  "toAccountId": "0.0.67890",
+  "amount": "100.50",
   "memo": "Payment for services"
-};
+}
+```
 
-// Submit message to HCS topic
-const messageData = {
-  "topicId": "0.0.98765",
-  "message": "Hello Hedera Consensus Service!",
+```javascript
+// Create a new fungible token
+{
+  "resource": "Token",
+  "operation": "Create",
+  "name": "MyToken",
+  "symbol": "MTK",
+  "decimals": 2,
+  "initialSupply": "1000000",
+  "treasuryAccountId": "0.0.12345"
+}
+```
+
+```javascript
+// Submit message to consensus topic
+{
+  "resource": "TopicMessage", 
+  "operation": "Submit Message",
+  "topicId": "0.0.54321",
+  "message": "Important audit log entry",
   "submitKey": "302e020100300506032b657004220420..."
-};
+}
+```
 
-// Create and mint NFT
-const nftData = {
-  "name": "My NFT Collection",
-  "symbol": "MNC", 
-  "metadata": [
-    "https://ipfs.io/ipfs/QmHash1...",
-    "https://ipfs.io/ipfs/QmHash2..."
-  ],
-  "treasuryAccount": "0.0.12345"
-};
+```javascript
+// Create scheduled transaction
+{
+  "resource": "Schedule",
+  "operation": "Create",
+  "scheduledTransaction": {
+    "type": "Transfer HBAR",
+    "fromAccountId": "0.0.12345",
+    "toAccountId": "0.0.67890", 
+    "amount": "500.00"
+  },
+  "memo": "Scheduled payment"
+}
 ```
 
 ## Error Handling
 
 | Error | Description | Solution |
 |-------|-------------|----------|
-| INSUFFICIENT_ACCOUNT_BALANCE | Account lacks sufficient HBAR for transaction | Ensure account has enough HBAR for transaction + fees |
-| INVALID_ACCOUNT_ID | Account ID format is incorrect | Use proper format: 0.0.xxxxx |
-| INVALID_SIGNATURE | Transaction signature verification failed | Verify private key matches account and is properly formatted |
-| TOKEN_NOT_ASSOCIATED_TO_ACCOUNT | Token not associated with target account | Associate token with account before transfer |
-| TRANSACTION_EXPIRED | Transaction exceeded validity period | Reduce transaction validity duration or retry |
-| TOPIC_EXPIRED | Consensus topic has expired | Create new topic or extend existing topic expiry |
+| INSUFFICIENT_ACCOUNT_BALANCE | Account lacks sufficient HBAR for transaction | Verify account balance and reduce transaction amount |
+| INVALID_ACCOUNT_ID | Malformed or non-existent account ID | Check account ID format (0.0.xxxxx) and existence |
+| INVALID_SIGNATURE | Transaction signature verification failed | Verify private key matches account and signature format |
+| TOKEN_NOT_ASSOCIATED_TO_ACCOUNT | Account not associated with token | Associate token to account before transfer |
+| TRANSACTION_EXPIRED | Transaction exceeded validity duration | Reduce transaction validity period or retry |
+| INSUFFICIENT_TOKEN_BALANCE | Account lacks sufficient token balance | Verify token balance before transfer |
 
 ## Development
 
@@ -233,4 +244,4 @@ Contributions are welcome! Please ensure:
 
 - **Issues**: [GitHub Issues](https://github.com/Velocity-BPA/n8n-nodes-hedera-hashgraph/issues)
 - **Hedera Documentation**: [docs.hedera.com](https://docs.hedera.com)
-- **Hedera Developer Discord**: [discord.gg/hedera](https://discord.gg/hedera)
+- **Developer Portal**: [portal.hedera.com](https://portal.hedera.com)
